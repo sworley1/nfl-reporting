@@ -5,6 +5,9 @@ data :
 .PHONY: render
 render:
 	Rscript -e 'library(rmarkdown); rmarkdown::render("NFL-Report.Rmd", "rmarkdown::github_document")'
+	git add NFL-Report.md
+	git commit -m "`date +'%Y-%m-%d'`"
+	git push origin main
 
 clean : 
 	rm Data/play_by_play.csv
