@@ -3,9 +3,9 @@ data :
 	Rscript Update_Data.R
 
 .PHONY: render
-render:
+render :
 	Rscript -e 'library(rmarkdown); rmarkdown::render("NFL-Report.Rmd", "rmarkdown::github_document")'
-	git add NFL-Report.md
+	git add	*
 	git commit -m "`date +'%Y-%m-%d'`"
 	git push origin main
 
@@ -16,6 +16,6 @@ clean :
 .PHONY: all
 all : 
 	make data
-	make render
+	make render 
 	make clean
 

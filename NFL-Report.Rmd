@@ -1,7 +1,4 @@
 ---
-title: "NFL_Report"
-author: "Sam Worley"
-date: "9/23/2021"
 output: github_document 
 ---
 
@@ -21,10 +18,13 @@ pbp <- read_csv("Data/play_by_play.csv")
 max_week <- max(pbp$week)
 ```
 
-## NFL Week `r max_week`
-## Efficiency Landscape
-```{r}
-library(ggimage)
+# NFL Landscape: Week `r max_week`
+
+### Overall Efficiency Landscape
+The code for this graph (and data for the whole report) comes directly from the good people at [nflfastR](https://www.nflfastr.com/index.html) straight off their [getting started page](https://www.nflfastr.com/articles/nflfastR.html#example-5-plot-offensive-and-defensive-epa-per-play-for-a-given-season), and for that, I thank them.  
+
+This graph looks at the offense vs defense epa for the current season as a whole, for every game. 
+```{r season-efficiency, echo=FALSE, warning=FALSE}
 pbp <-  pbp %>%
   dplyr::filter(season_type == "REG") %>%
   dplyr::filter(!is.na(posteam) & (rush == 1 | pass == 1))
@@ -50,7 +50,7 @@ joined %>%
     x = "Offense EPA/play",
     y = "Defense EPA/play",
     caption = "Data: @nflfastR",
-    title = "NFL Offensive and Defensive EPA per Play"
+    title = "NFL Offensive and Defensive EPA per Play (Total Season)"
   ) +
   ggplot2::theme_bw() +
   ggplot2::theme(
@@ -59,43 +59,194 @@ joined %>%
   ) +
   ggplot2::scale_y_reverse()
 ```
-```{r net}
-weekly_offense <- pbp %>%
-  group_by(posteam, week) %>%
-  summarise(
-    off_epa = mean(epa, na.rm = TRUE)
-  )
 
-weekly_defense <- pbp %>%
-  group_by(defteam, week) %>%
-  summarise(
-    def_epa = mean(epa, na.rm = TRUE)
-  )
+But how is a team trending? Let's look at the same plot of offense & defense efficiency the last two games only. 
 
-weekly_epa <- weekly_offense %>%
+```{r recent-efficiency, echo=FALSE, warning=FALSE, message=FALSE}
+pbp_recent <- pbp %>% 
+  dplyr::filter(week + 1 >= max_week)
+
+offense <- pbp_recent %>%
+  dplyr::group_by(posteam) %>%
+  dplyr::summarise(off_epa = mean(epa, na.rm = TRUE))
+defense <- pbp_recent %>%
+  dplyr::group_by(defteam) %>%
+  dplyr::summarise(def_epa = mean(epa, na.rm = TRUE))
+logos <- teams_colors_logos %>% dplyr::select(team_abbr, team_logo_espn)
+joined <- offense %>%
   dplyr::inner_join(defense, by = c("posteam" = "defteam")) %>%
   dplyr::inner_join(logos, by = c("posteam" = "team_abbr")) %>%
   dplyr::inner_join(teams_colors_logos, by = c("posteam" = "team_abbr"))
 
-#head(weekly_epa)
-
-weekly_epa <- weekly_epa %>%
-  mutate(
-    net_epa = off_epa - def_epa
-  )
-
-weekly_epa %>%
-  ggplot(aes(x = week, y = net_epa)) +
-  ggimage::geom_image(aes(image = team_logo_espn.x), size = 0.05, asp = 16 / 9) + 
-  geom_line(aes(group = posteam, color = team_color3))
-
-
+joined %>%
+  ggplot2::ggplot(aes(x = off_epa, y = def_epa)) +
+  ggplot2::geom_abline(slope = -1.5, intercept = c(.4, .3, .2, .1, 0, -.1, -.2, -.3), alpha = .2) +
+  ggplot2::geom_hline(aes(yintercept = mean(off_epa)), color = "red", linetype = "dashed") +
+  ggplot2::geom_vline(aes(xintercept = mean(def_epa)), color = "red", linetype = "dashed") +
+  ggimage::geom_image(aes(image = team_logo_espn.x), size = 0.05, asp = 16 / 9) +
+  ggplot2::labs(
+    x = "Offense EPA/play",
+    y = "Defense EPA/play",
+    caption = "Data: @nflfastR",
+    title = "NFL Offensive and Defensive EPA per Play (Last 2 games)"
+  ) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    aspect.ratio = 9 / 16,
+    plot.title = ggplot2::element_text(size = 12, hjust = 0.5, face = "bold")
+  ) +
+  ggplot2::scale_y_reverse()
 ```
 
-Ideas:
-1. Team Defense: 2x2 Matrix against the run vs pass
-2. Team Offense: 2x2 Matrix using pass vs the run
+## Offense and Defensive Breakdowns 
 
-Questions:
-* Who is the strongest running team? Runs the most?
-* Who is the strongest passing team? Passes the most?
+Where are these efficiency metrics coming from and what drives them? Well, we can break offense and defense into how they compare when the play type is a run, and when it is a pass. 
+
+### Offense Breakdown: Run vs Pass
+Starting with offense and the average EPA gained per play when they throw versus run the ball. 
+
+```{r offense-efficiency, echo=FALSE, warning=FALSE, message=FALSE}
+
+offense <- pbp %>% 
+  filter(play_type != "no_play") %>%
+  group_by(posteam, play_type) %>%
+  summarise(
+    epa = mean(epa, na.rm = TRUE),
+    frequency = n()
+    ) %>%
+  pivot_wider(names_from = c("play_type"), values_from = c("epa", "frequency")) %>% 
+  dplyr::inner_join(logos, by = c("posteam" = "team_abbr"))
+
+offense %>% 
+  ggplot(aes(x = epa_run, y = epa_pass)) +
+  ggimage::geom_image(aes(image = team_logo_espn), size = 0.05, asp = 16 / 9) +
+  ggplot2::geom_hline(aes(yintercept = mean(epa_pass)), color = "red", linetype = "dashed") +
+  ggplot2::geom_vline(aes(xintercept = mean(epa_run)), color = "red", linetype = "dashed") + 
+  ggplot2::labs(
+    x = "Offense Run EPA/play",
+    y = "Offense Pass EPA/play",
+    caption = "Data: @nflfastR",
+    title = "NFL Offensive EPA per Play (Total Season)"
+  ) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    aspect.ratio = 9 / 16,
+    plot.title = ggplot2::element_text(size = 12, hjust = 0.5, face = "bold")
+  ) 
+```
+
+Again, this graph has the averages looking at the whole season, what happens when we look at the last three games? 
+
+```{r offense-efficiency-recently, echo=FALSE, warning=FALSE, message=FALSE}
+offense <- pbp_recent %>% 
+  filter(play_type != "no_play") %>%
+  group_by(posteam, play_type) %>%
+  summarise(
+    epa = mean(epa, na.rm = TRUE),
+    frequency = n()
+    ) %>%
+  pivot_wider(names_from = c("play_type"), values_from = c("epa", "frequency")) %>% 
+  dplyr::inner_join(logos, by = c("posteam" = "team_abbr"))
+
+offense %>% 
+  ggplot(aes(x = epa_run, y = epa_pass)) +
+  ggimage::geom_image(aes(image = team_logo_espn), size = 0.05, asp = 16 / 9) +
+  ggplot2::geom_hline(aes(yintercept = mean(epa_pass)), color = "red", linetype = "dashed") +
+  ggplot2::geom_vline(aes(xintercept = mean(epa_run)), color = "red", linetype = "dashed") + 
+  ggplot2::labs(
+    x = "Offense Run EPA/play",
+    y = "Offense Pass EPA/play",
+    caption = "Data: @nflfastR",
+    title = "NFL Offensive EPA per Play (Last 2 games)"
+  ) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    aspect.ratio = 9 / 16,
+    plot.title = ggplot2::element_text(size = 12, hjust = 0.5, face = "bold")
+  ) 
+```
+
+```{r offense-frequency, echo=FALSE, warning=FALSE, message=FALSE}
+offense <- pbp %>% 
+  filter( play_type != "no_play") %>%
+  group_by(posteam, play_type) %>%
+  summarise(
+    freq = n()
+  ) %>% 
+  transmute(
+    play_type, percent = freq / sum(freq)
+  ) 
+
+offense %>% ggplot(aes(x = reorder(posteam, posteam), y = percent, fill=play_type)) + 
+  geom_bar(position=position_fill(reverse = TRUE), stat = "identity") + 
+  coord_flip() +
+  theme_bw()
+  
+```
+
+
+### Defensive Breakdowns: Run vs Pass
+Let's do the same thing but looking at how a team's defense fairs against an opposing offense running pass or rush plays. 
+
+```{r defensive-efficiency, echo=FALSE, message=FALSE, warning=FALSE}
+defense <- pbp %>% 
+  filter(play_type != "no_play") %>%
+  group_by(defteam, play_type) %>%
+  summarise(
+    epa = mean(epa, na.rm = TRUE),
+    frequency = n()
+    ) %>%
+  pivot_wider(names_from = c("play_type"), values_from = c("epa", "frequency")) %>% 
+  dplyr::inner_join(logos, by = c("defteam" = "team_abbr"))
+
+defense %>% 
+  ggplot(aes(x = epa_run, y = epa_pass)) +
+  ggimage::geom_image(aes(image = team_logo_espn), size = 0.05, asp = 16 / 9) +
+  ggplot2::geom_hline(aes(yintercept = mean(epa_pass)), color = "red", linetype = "dashed") +
+  ggplot2::geom_vline(aes(xintercept = mean(epa_run)), color = "red", linetype = "dashed") + 
+  ggplot2::labs(
+    x = "Defense EPA/play against the Run",
+    y = "Defense EPA/play against the Pass",
+    caption = "Watch the axes! | Data: @nflfastR",
+    title = "NFL Defense EPA per Play (Total Season)"
+  ) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    aspect.ratio = 9 / 16,
+    plot.title = ggplot2::element_text(size = 12, hjust = 0.5, face = "bold")
+  ) + 
+  ggplot2::scale_y_reverse() +
+  ggplot2::scale_x_reverse()
+```
+
+```{r defensive-efficiency-recent, echo=FALSE, message=FALSE, warning=FALSE}
+defense <- pbp_recent %>% 
+  filter(play_type != "no_play") %>%
+  group_by(defteam, play_type) %>%
+  summarise(
+    epa = mean(epa, na.rm = TRUE),
+    frequency = n()
+    ) %>%
+  pivot_wider(names_from = c("play_type"), values_from = c("epa", "frequency")) %>% 
+  dplyr::inner_join(logos, by = c("defteam" = "team_abbr"))
+
+defense %>% 
+  ggplot(aes(x = epa_run, y = epa_pass)) +
+  ggimage::geom_image(aes(image = team_logo_espn), size = 0.05, asp = 16 / 9) +
+  ggplot2::geom_hline(aes(yintercept = mean(epa_pass)), color = "red", linetype = "dashed") +
+  ggplot2::geom_vline(aes(xintercept = mean(epa_run)), color = "red", linetype = "dashed") + 
+  ggplot2::labs(
+    x = "Defense EPA/play against the Run",
+    y = "Defense EPA/play against the Pass",
+    caption = "Watch the axes! | Data: @nflfastR",
+    title = "NFL Defense EPA per Play (Total Season)"
+  ) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(
+    aspect.ratio = 9 / 16,
+    plot.title = ggplot2::element_text(size = 12, hjust = 0.5, face = "bold")
+  ) + 
+  ggplot2::scale_y_reverse() +
+  ggplot2::scale_x_reverse()
+```
+
