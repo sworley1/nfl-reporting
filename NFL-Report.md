@@ -38,6 +38,14 @@ happens when we look at the last three games?
 
 ![](NFL-Report_files/figure-gfm/offense-frequency-1.png)<!-- -->
 
+![](NFL-Report_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+Recent Distribution of Running vs Passing
+
+![](NFL-Report_files/figure-gfm/offense-frequency-recent-1.png)<!-- -->
+
+![](NFL-Report_files/figure-gfm/offense-frequency-scatter-recent-1.png)<!-- -->
+
 ### Defensive Breakdowns: Run vs Pass
 
 Let’s do the same thing but looking at how a team’s defense fairs

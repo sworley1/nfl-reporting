@@ -14,6 +14,15 @@ library(qs)
 
 ```{r load-data, include=FALSE, message=FALSE, echo=FALSE}
 pbp <- read_csv("Data/play_by_play.csv")
+pbp <-  pbp %>%
+  dplyr::filter(season_type == "REG") %>%
+  dplyr::filter(!is.na(posteam) & (rush == 1 | pass == 1))
+
+max_week <- max(pbp$week)
+pbp_recent <- pbp %>% 
+  dplyr::filter(week + 1 >= max_week)
+
+logos <- teams_colors_logos %>% dplyr::select(team_abbr, team_logo_espn)
 
 max_week <- max(pbp$week)
 ```
@@ -25,16 +34,13 @@ The code for this graph (and data for the whole report) comes directly from the 
 
 This graph looks at the offense vs defense epa for the current season as a whole, for every game. 
 ```{r season-efficiency, echo=FALSE, warning=FALSE}
-pbp <-  pbp %>%
-  dplyr::filter(season_type == "REG") %>%
-  dplyr::filter(!is.na(posteam) & (rush == 1 | pass == 1))
 offense <- pbp %>%
   dplyr::group_by(posteam) %>%
   dplyr::summarise(off_epa = mean(epa, na.rm = TRUE))
 defense <- pbp %>%
   dplyr::group_by(defteam) %>%
   dplyr::summarise(def_epa = mean(epa, na.rm = TRUE))
-logos <- teams_colors_logos %>% dplyr::select(team_abbr, team_logo_espn)
+
 joined <- offense %>%
   dplyr::inner_join(defense, by = c("posteam" = "defteam")) %>%
   dplyr::inner_join(logos, by = c("posteam" = "team_abbr")) %>%
@@ -167,21 +173,133 @@ offense %>%
 ```
 
 ```{r offense-frequency, echo=FALSE, warning=FALSE, message=FALSE}
-offense <- pbp %>% 
-  filter( play_type != "no_play") %>%
-  group_by(posteam, play_type) %>%
+tmp <- pbp %>% 
+  filter(play_type != "no_play") %>% 
+  group_by(posteam, play_type) %>% 
   summarise(
     freq = n()
   ) %>% 
-  transmute(
-    play_type, percent = freq / sum(freq)
-  ) 
-
-offense %>% ggplot(aes(x = reorder(posteam, posteam), y = percent, fill=play_type)) + 
-  geom_bar(position=position_fill(reverse = TRUE), stat = "identity") + 
-  coord_flip() +
-  theme_bw()
+  pivot_wider(names_from = play_type, values_from = freq) %>% 
+  mutate( `Pass Plays` = pass / (pass+run),
+          `Run Plays` = run / (pass + run) 
+  )
   
+tmp$rank <- dense_rank(desc(tmp$`Pass Plays`))
+mean_pass <- mean(tmp$`Pass Plays`)
+
+tmp %>% 
+  pivot_longer(
+    cols = c(`Pass Plays`, `Run Plays`),
+    names_to = 'play_type',
+    values_to = 'percent'
+  )  %>% ggplot(aes(y = reorder(posteam, -rank), x = percent, fill=play_type)) +
+  geom_bar(position=position_fill(reverse = TRUE), stat = "identity", alpha = 0.85) +
+  labs(
+    title = "Frequency of Running vs Passing on Offense",
+    x = "Percent",
+    y =""
+  ) +
+  theme_bw() + 
+  scale_fill_manual(values = c("#C20114", "#2F3061")) + 
+  geom_vline(xintercept = mean_pass, color="#E5F2C9", linetype = "dashed") + 
+  guides(fill=guide_legend(""))
+  
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+tmp <- pbp %>% 
+  filter(play_type != "no_play") %>% 
+  group_by(posteam, play_type) %>% 
+  summarise(
+    freq = n()
+  ) %>% 
+  pivot_wider(names_from = play_type, values_from = freq) %>% 
+  mutate( `Pass Plays` = pass / (pass+run),
+          `Run Plays` = run / (pass + run) 
+  )  %>%
+  dplyr::inner_join(logos, by = c("posteam" = "team_abbr"))
+
+mean_run <- mean(tmp$`Run Plays`)
+
+tmp %>% 
+  ggplot(aes(x = `Run Plays`, y = `Pass Plays`)) + 
+  ggimage::geom_image(aes(image = team_logo_espn), size = 0.05, asp = 16 / 9) + 
+  geom_vline(xintercept = mean_run, linetype = "dashed", color = "red") +
+  geom_hline(yintercept = mean_pass, linetype = "dashed", color = "red") + 
+  theme_bw() + 
+  labs(
+    title = "Percentage of a Team's Play Type",
+    subtitle = "Entire Season",
+    x = "% of Run Plays",
+    y = "% of Pass Plays"
+  )
+```
+
+Recent Distribution of Running vs Passing
+
+```{r offense-frequency-recent, echo=FALSE, warning=FALSE, message=FALSE}
+tmp <- pbp_recent %>% 
+  filter(play_type != "no_play") %>% 
+  group_by(posteam, play_type) %>% 
+  summarise(
+    freq = n()
+  ) %>% 
+  pivot_wider(names_from = play_type, values_from = freq) %>% 
+  mutate( `Pass Plays` = pass / (pass+run),
+          `Run Plays` = run / (pass + run) 
+  )
+  
+tmp$rank <- dense_rank(desc(tmp$`Pass Plays`))
+mean_pass <- mean(tmp$`Pass Plays`)
+
+tmp %>% 
+  pivot_longer(
+    cols = c(`Pass Plays`, `Run Plays`),
+    names_to = 'play_type',
+    values_to = 'percent'
+  )  %>% ggplot(aes(y = reorder(posteam, -rank), x = percent, fill=play_type)) +
+  geom_bar(position=position_fill(reverse = TRUE), stat = "identity", alpha = 0.85) +
+  labs(
+    title = "Frequency of Running vs Passing on Offense",
+    subtitle = "Last 2 games",
+    x = "Percent",
+    y =""
+  ) +
+  theme_bw() + 
+  scale_fill_manual(values = c("#C20114", "#2F3061")) + 
+  geom_vline(xintercept = mean_pass, color="#E5F2C9", linetype = "dashed") + 
+  guides(fill=guide_legend(""))
+
+
+```
+
+```{r offense-frequency-scatter-recent, message=FALSE, echo=FALSE, warning=FALSE}
+tmp <- pbp_recent %>% 
+  filter(play_type != "no_play") %>% 
+  group_by(posteam, play_type) %>% 
+  summarise(
+    freq = n()
+  ) %>% 
+  pivot_wider(names_from = play_type, values_from = freq) %>% 
+  mutate( `Pass Plays` = pass / (pass+run),
+          `Run Plays` = run / (pass + run) 
+  )  %>%
+  dplyr::inner_join(logos, by = c("posteam" = "team_abbr"))
+
+mean_run <- mean(tmp$`Run Plays`)
+mean_pass <- mean(tmp$`Pass Plays`)
+tmp %>% 
+  ggplot(aes(x = `Run Plays`, y = `Pass Plays`)) + 
+  ggimage::geom_image(aes(image = team_logo_espn), size = 0.05, asp = 16 / 9) + 
+  geom_vline(xintercept = mean_run, linetype = "dashed", color = "red") +
+  geom_hline(yintercept = mean_pass, linetype = "dashed", color = "red") + 
+  theme_bw() + 
+  labs(
+    title = "Percentage of a Team's Play Type",
+    subtitle = "Last 2 games",
+    x = "% of Run Plays",
+    y = "% of Pass Plays"
+  )
 ```
 
 
@@ -239,7 +357,7 @@ defense %>%
     x = "Defense EPA/play against the Run",
     y = "Defense EPA/play against the Pass",
     caption = "Watch the axes! | Data: @nflfastR",
-    title = "NFL Defense EPA per Play (Total Season)"
+    title = "NFL Defense EPA per Play (Last 2 Games)"
   ) +
   ggplot2::theme_bw() +
   ggplot2::theme(
@@ -249,4 +367,3 @@ defense %>%
   ggplot2::scale_y_reverse() +
   ggplot2::scale_x_reverse()
 ```
-
