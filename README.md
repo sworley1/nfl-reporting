@@ -8,8 +8,8 @@ the NFL curtesy from [nflfastr](https://www.nflfastr.com/)
 
 To Do's
 ---
-* :white_check_mark: archive script to archive old reports
-* config file ? -> for looking at last `x` number of games. or what season to look at
-* add down analysis? Are there any trends on the play type on a down? Who is going for it the most on 4th? 
-* Track changes in down distribution of run vs pass for each team over time? Look at the Cowboys week 2 -> 3
-* docker
+:white_check_mark: archive script to archive old reports
+:black_square_button: ? -> for looking at last `x` number of games. or what season to look at
+:black_square_button: add down analysis? Are there any trends on the play type on a down? Who is going for it the most on 4th? 
+:black_square_button: Track changes in down distribution of run vs pass for each team over time? Look at the Cowboys week 2 -> 3
+:black_square_button: docker
