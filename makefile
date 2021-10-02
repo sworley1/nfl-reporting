@@ -4,8 +4,9 @@ data :
 
 .PHONY: render
 render :
-	./scripts/archive.sh
+	#./scripts/archive.sh
 	Rscript -e 'library(rmarkdown); rmarkdown::render("scripts/NFL-Report.Rmd", "rmarkdown::github_document")'
+	git config advice.addIgnoredFile false
 	git add	*
 	git commit -m "`date +'%Y-%m-%d'`"
 	git push origin main

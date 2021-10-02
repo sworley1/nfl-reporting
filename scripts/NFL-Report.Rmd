@@ -13,7 +13,7 @@ library(qs)
 
 
 ```{r load-data, include=FALSE, message=FALSE, echo=FALSE}
-pbp <- read_csv("Data/play_by_play.csv")
+pbp <- read_csv("../Data/play_by_play.csv")
 pbp <-  pbp %>%
   dplyr::filter(season_type == "REG") %>%
   dplyr::filter(!is.na(posteam) & (rush == 1 | pass == 1))
