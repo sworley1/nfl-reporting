@@ -1,5 +1,6 @@
 .PHONY: data
 data :
+	#[ ! -d Data/ ] && mkdir Data/
 	Rscript scripts/Update_Data.R
 
 .PHONY: render
