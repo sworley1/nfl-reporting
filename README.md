@@ -18,4 +18,8 @@ Dev. Progress / Learning Goals
 :white_check_mark: archive script to archive old reports      
 :black_square_button: docker     
 🔲 GitHub Actions for scheduling  
-[4 Report](archive/Week4/NFL-Report.md)
+
+Weekly Archived Reports:
+---
+* [Week 3](archive/Week3/NFL-Report.md)
+* [Week 4](archive/Week4/NFL-Report.md)
