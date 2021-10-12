@@ -23,3 +23,4 @@ Weekly Archived Reports:
 ---
 * [Week 3](archive/Week3/NFL-Report.md)
 * [Week 4](archive/Week4/NFL-Report.md)
+[* Week 4](archive/Week4/NFL-Report.md)  
