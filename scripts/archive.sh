@@ -22,7 +22,7 @@ mv NFL-Report.md archive/$VAR/
 mv NFL-Report_files/figure-gfm/* archive/$VAR/NFL-Report_files/figure-gfm/
 
 # Append link to archive on README
-echo "[* Week $WEEK](archive/$VAR/NFL-Report.md)  " >> README.md
+echo "* [Week $WEEK](archive/$VAR/NFL-Report.md)  " >> README.md
 
 # push to github
 git add archive/$VAR/*
