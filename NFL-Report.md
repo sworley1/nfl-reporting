@@ -1,5 +1,5 @@
 
-# NFL Landscape: Week 6
+# NFL Landscape: Week 7
 
 ### Overall Efficiency Landscape
 
