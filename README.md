@@ -26,3 +26,4 @@ Weekly Archived Reports:
 * [Week 5](archive/Week5/NFL-Report.md)  
 * [Week 6](archive/Week6/NFL-Report.md)  
 * [Week 7](archive/Week7/NFL-Report.md)  
+* [Week 8](archive/Week8/NFL-Report.md)  
