@@ -29,6 +29,7 @@ clean :
 
 .PHONY: all
 all : 
+	git pull origin main
 	make data
 	make archive
 	make render 
