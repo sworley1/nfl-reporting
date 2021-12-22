@@ -27,6 +27,16 @@ clean :
 	rm -rf scripts/NFL-Report_files
 	rm scripts/*.html
 
+
+sww-email:
+	git clone git@github.com:sworley1/sww-email.git
+	echo "sww-email" >> .gitignore
+	touch sww-email/secrets.json
+
+.PHONY: email_test
+email_test : sww-email/secrets.json sww-email/config.py
+	python3 sww-email/notify.py
+
 .PHONY: all
 all : 
 	git pull origin main
