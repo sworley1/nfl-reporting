@@ -17,7 +17,8 @@ Dev. Progress / Learning Goals
 ---  
 :white_check_mark: archive script to archive old reports      
 :black_square_button: docker     
-🔲 GitHub Actions for scheduling  
+🔸 GitHub Actions for scheduling  
+✅ running on scheduled crontab (Tuesday's 9am EST)
 
 Weekly Archived Reports:
 ---
