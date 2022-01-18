@@ -35,3 +35,4 @@ Weekly Archived Reports:
 * [Week 15](archive/Week15/NFL-Report.md)  
 * [Week 16](archive/Week16/NFL-Report.md)  
 * [Week 17](archive/Week17/NFL-Report.md)  
+* [Week 18](archive/Week18/NFL-Report.md)  
