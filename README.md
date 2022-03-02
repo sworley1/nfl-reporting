@@ -3,6 +3,8 @@
 Practicing deployment and automation by generating weekly reports on 
 the NFL curtesy from [nflfastr](https://www.nflfastr.com/)
 
+*Scheduled executions paused Mar 2, 2022. Just slightly late ... * 
+
 **See the report [here](NFL-Report.md)**
 
 
