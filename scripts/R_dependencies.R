@@ -4,7 +4,8 @@
 ############################################
 
 install.packages("tidyverse")
-install.packages("nflfastR")
+#install.packages("nflfastR")
+install.packages("nflreadr")
 install.packages("ggimage")
 install.packages("qs")
 install.packages("rmarkdown")

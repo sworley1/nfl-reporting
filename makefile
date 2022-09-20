@@ -33,8 +33,8 @@ sww-email:
 	echo "sww-email" >> .gitignore
 	touch sww-email/secrets.json
 
-.PHONY: email_test
-email_test : sww-email/secrets.json sww-email/config.py
+.PHONY: nfl_email
+nfl_email : 
 	python3 sww-email/notify.py
 
 .PHONY: all
@@ -45,4 +45,5 @@ all :
 	make render 
 	make clean
 	make git
+	make nfl_email
 

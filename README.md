@@ -24,21 +24,4 @@ Dev. Progress / Learning Goals
 
 Weekly Archived Reports:
 ---
-* [Week 3](archive/Week3/NFL-Report.md)
-* [Week 4](archive/Week4/NFL-Report.md)
-* [Week 5](archive/Week5/NFL-Report.md)  
-* [Week 6](archive/Week6/NFL-Report.md)  
-* [Week 7](archive/Week7/NFL-Report.md)  
-* [Week 8](archive/Week8/NFL-Report.md)  
-* [Week 9](archive/Week9/NFL-Report.md)  
-* [Week 10](archive/Week10/NFL-Report.md)  
-* [Week 11](archive/Week11/NFL-Report.md)  
-* [Week 14](archive/Week14/NFL-Report.md)  
-* [Week 15](archive/Week15/NFL-Report.md)  
-* [Week 16](archive/Week16/NFL-Report.md)  
-* [Week 17](archive/Week17/NFL-Report.md)  
-* [Week 18](archive/Week18/NFL-Report.md)  
-* [Week 18](archive/Week18/NFL-Report.md)  
-* [Week 18](archive/Week18/NFL-Report.md)  
-* [Week 18](archive/Week18/NFL-Report.md)  
-* [Week 18](archive/Week18/NFL-Report.md)  
+
