@@ -24,3 +24,4 @@ Dev. Progress / Learning Goals
 Weekly Archived Reports:
 ---
 
+* [Week 17](archive/Week17/NFL-Report.md)  
