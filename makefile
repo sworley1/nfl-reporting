@@ -27,7 +27,7 @@ clean :
 	rm -rf scripts/NFL-Report_files
 	rm scripts/*.html
 
-.PHONY sww-email
+.PHONY: sww-email
 sww-email:
 	git clone git@github.com:sworley1/sww-email.git
 	echo "sww-email" >> .gitignore
