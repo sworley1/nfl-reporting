@@ -19,7 +19,7 @@ echo $VAR
 # move new files (.md & .pngs) 
 mv NFL-Report.md archive/$SEASON/$VAR/
 #mv NFL-Report_files/figure-gfm/* archive/$VAR/NFL-Report_files/figure-gfm/
-mv NFL-Report_files/figure-gfm/* archive/$VAR/NFL-Report_files/figure-gfm/
+mv NFL-Report_files/figure-gfm/* archive/$SEASON/$VAR/NFL-Report_files/figure-gfm/
 
 # Append link to archive on README
 echo "* [Week $WEEK](archive/$VAR/NFL-Report.md)  " >> README.md
