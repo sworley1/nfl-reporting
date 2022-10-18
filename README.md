@@ -26,3 +26,4 @@ Weekly Archived Reports:
 * [Week 2](archive/2022-23/Week2/NFL-Report.md)  
 * [Week 3](archive/2022-23/Week3/NFL-Report.md)  
 * [Week 4](archive/2022-23/Week4/NFL-Report.md)  
+* [Week 5](archive/2022-23/Week5/NFL-Report.md)  
